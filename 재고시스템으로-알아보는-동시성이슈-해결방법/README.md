@@ -99,3 +99,24 @@ await()은 Latch의 숫자가 0이 될 때까지 기다리는 코드입니다.
 ```countDownLatch.await();```  
 
 다른 쓰레드에서 countDown()을 5번 호출하게 된다면 Latch는 0이 되며, await()은 더 이상 기다리지 않고 다음 코드를 실행하게 됩니다.
+
+## Lock
+java의 synchronized 키워드를 사용하게 되면 같은 프로세스 내에서는 유효하게 동작하겠지만
+여러 서버(프로세스)에서는 데이터 정합성을 보장 할 수 없습니다.
+
+따라서 여러 서버의 데이터 정합성을 보장하기 위해선 Redis의 Lock이나 MySQL의 다양한 Lock 기능들을 사용해야 합니다.
+
+### MySQL Lock
+* Pessimistic Lock - Exclusive lock을 활용해 실제로 데이터에 Lock을 걸어서 정합성을 맞추는 방법입니다. 다른 Transaction에서는 Lock이 해제되기 전까지 데이터를 가져갈 수 없으며 사용 시 데드락에 주의해야 합니다.
+* Optimistic Lock - Lock을 사용하지 않고 Version 컬럼을 이용하여 정합성을 맞추는 방법입니다.
+* Named Lock - 이름을 가진 Metadata locking 입니다. 데이터에 Lock을 거는 것이 아닌 별도의 공간에 Lock을 생성하는 방법입니다.
+    * 실무에서는 Named Lock 사용 시 다른 DataSource를 사용하는 것을 권고합니다. 같은 DataSource를 사용하게 되면 Connection Pool이 부족해지는 현상으로 인해 다른 서비스들에도 영향을 끼칠 수 있기 때문입니다. 따라서 실무에서는 DataSource를 분리해야 합니다. 
+    * NamedLock은 주로 분산락을 사용할 때 사용합니다.
+    * Pessimistic Lock은 Timeout 구현이 어렵지만 NamedLock은 손쉽게 구현할 수 있습니다.
+    
+### Redis Lock
+* Lettuce
+    * setnx 명령어를 사용하여 분산락 구현
+    * spin lock 방식
+* Redisson
+    * pub-sub 기반으로 Lock 구현 제공    
