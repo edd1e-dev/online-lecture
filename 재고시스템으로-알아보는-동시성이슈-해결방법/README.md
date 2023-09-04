@@ -118,5 +118,23 @@ java의 synchronized 키워드를 사용하게 되면 같은 프로세스 내에
 * Lettuce
     * setnx 명령어를 사용하여 분산락 구현
     * spin lock 방식
+    * MySQL의 Named Lock 방식과 비슷하지만 세션 관리에 신경을 안써도 되는 장점이 있습니다.
 * Redisson
-    * pub-sub 기반으로 Lock 구현 제공    
+    * pub-sub 기반으로 Lock 구현 제공
+ 
+### Redis 라이브러리 비교
+Lettuce
+- 구현이 간단합니다.
+- Spring Data Redis를 이용하면 Lettuce가 기본이기 때문에 별도 라이브러리를 사용하지 않아도 됩니다.
+- Spin Lock 방식이기 때문에 동시에 많은 쓰레드가 Lock 획득 대기 상태라면 Redis에 부하가 갈 수 있습니다.
+
+Redisson
+- 락 획득 재시도를 기본으로 제공합니다.
+- pub-sub 방식으로 구현이 되어있기 때문에 Lettuce와 비교했을 때 Redis에 부하가 덜 갑니다.
+- 별도의 라이브러리를 사용해야 합니다.
+- Lock을 라이브러리 차원에서 제공해주기 때문에 사용법을 공부해야 합니다.
+
+### 실무에서는?
+- 재시도가 필요하지 않은 Lock은 Lettuce를 활용
+- 재시도가 필요한 경우에는 Redisson을 활용
+두 가지 방식을 혼용합니다.
