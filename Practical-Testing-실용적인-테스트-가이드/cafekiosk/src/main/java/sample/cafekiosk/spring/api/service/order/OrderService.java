@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import sample.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
+import sample.cafekiosk.spring.api.service.order.request.OrderCreateServiceRequest;
 import sample.cafekiosk.spring.api.service.order.response.OrderResponse;
 import sample.cafekiosk.spring.domain.order.Order;
 import sample.cafekiosk.spring.domain.order.OrderRepository;
@@ -19,6 +21,7 @@ import sample.cafekiosk.spring.domain.product.ProductType;
 import sample.cafekiosk.spring.domain.stock.Stock;
 import sample.cafekiosk.spring.domain.stock.StockRepository;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class OrderService {
@@ -31,7 +34,8 @@ public class OrderService {
 	 * 재고 감소 -> 동시성 문제
 	 * Optimistic Lock / Pessimistic Lock / ...
 	 */
-	public OrderResponse createOrder(OrderCreateRequest request, LocalDateTime registeredDateTime) {
+	@Transactional
+	public OrderResponse createOrder(OrderCreateServiceRequest request, LocalDateTime registeredDateTime) {
 		List<String> productNumbers = request.getProductNumbers();
 		List<Product> duplicateProducts = findProductsBy(productNumbers);
 
@@ -43,6 +47,7 @@ public class OrderService {
 		return OrderResponse.of(savedOrder);
 	}
 
+	@Transactional
 	private void deductStockQuantities(List<Product> duplicateProducts) {
 		List<String> stockProductNumbers = extractStockProductNumbers(duplicateProducts);
 
