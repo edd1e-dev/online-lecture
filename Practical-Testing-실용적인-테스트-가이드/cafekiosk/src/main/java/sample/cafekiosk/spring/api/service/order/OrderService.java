@@ -48,7 +48,7 @@ public class OrderService {
 	}
 
 	@Transactional
-	private void deductStockQuantities(List<Product> duplicateProducts) {
+	public void deductStockQuantities(List<Product> duplicateProducts) {
 		List<String> stockProductNumbers = extractStockProductNumbers(duplicateProducts);
 
 		Map<String, Stock> stockMap = createStockMapBy(stockProductNumbers);
@@ -86,7 +86,7 @@ public class OrderService {
 	}
 
 	private List<Product> findProductsBy(List<String> productNumbers) {
-		List<Product> products = productRepository.findAllByProductNumberIn(productNumbers);
+		List<Product> products = productRepository.findAllByProductNumberIn(productNumbers); // 전체 프로덕트
 		Map<String, Product> productMap = products.stream()
 			.collect(Collectors.toMap(Product::getProductNumber, p -> p));
 		List<Product> duplicateProducts = productNumbers.stream()
